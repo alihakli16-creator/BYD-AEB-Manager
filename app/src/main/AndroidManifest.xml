@@ -35,6 +35,11 @@
             </intent-filter>
         </activity>
 
+        <!-- Uyumluluk Köprüsü -->
+        <activity
+            android:name="com.byd.afskapat.MainActivity"
+            android:exported="false" />
+
         <!-- Yerleşik BYD ADB Arka Plan Servisi -->
         <service
             android:name="com.byd.aebtoggle.AebService"
