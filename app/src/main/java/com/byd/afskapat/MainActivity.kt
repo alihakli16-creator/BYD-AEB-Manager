@@ -12,10 +12,14 @@ import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
+import android.widget.CompoundButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.byd.afskapat.databinding.ActivityMainBinding
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.switchmaterial.SwitchMaterial
+import com.mk.aebmanager.R
 import com.byd.afskapat.service.AfsAccessibilityService
 
 class MainActivity : AppCompatActivity() {
@@ -25,17 +29,32 @@ class MainActivity : AppCompatActivity() {
         private const val PREF_KEY_AUTO = "pref_auto_disable"
     }
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var switchAutoDisable: SwitchMaterial
+    private lateinit var btnTestCloseNow: MaterialButton
+    private lateinit var btnPermAccessibility: MaterialButton
+    private lateinit var btnPermOverlay: MaterialButton
+    private lateinit var btnPermBattery: MaterialButton
+    private lateinit var tvStatusMessage: TextView
+
     private val handler = Handler(Looper.getMainLooper())
     private var statusRunnable: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_main)
 
+        initViews()
         setupPreferences()
         setupListeners()
+    }
+
+    private fun initViews() {
+        switchAutoDisable = findViewById(R.id.switchAutoDisable)
+        btnTestCloseNow = findViewById(R.id.btnTestCloseNow)
+        btnPermAccessibility = findViewById(R.id.btnPermAccessibility)
+        btnPermOverlay = findViewById(R.id.btnPermOverlay)
+        btnPermBattery = findViewById(R.id.btnPermBattery)
+        tvStatusMessage = findViewById(R.id.tvStatusMessage)
     }
 
     override fun onResume() {
@@ -52,9 +71,9 @@ class MainActivity : AppCompatActivity() {
     private fun setupPreferences() {
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isAuto = prefs.getBoolean(PREF_KEY_AUTO, true)
-        binding.switchAutoDisable.isChecked = isAuto
+        switchAutoDisable.isChecked = isAuto
 
-        binding.switchAutoDisable.setOnCheckedChangeListener { _, isChecked ->
+        switchAutoDisable.setOnCheckedChangeListener { _: CompoundButton, isChecked: Boolean ->
             prefs.edit().putBoolean(PREF_KEY_AUTO, isChecked).apply()
             val text = if (isChecked) "Otomatik kapatma devrede" else "Otomatik kapatma devre dışı bırakıldı"
             Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
@@ -63,24 +82,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         // 1. Manuel Test Butonu
-        binding.btnTestCloseNow.setOnClickListener {
+        btnTestCloseNow.setOnClickListener {
             if (!isAccessibilityServiceEnabled()) {
                 Toast.makeText(this, "Lütfen önce Erişilebilirlik İznini açın!", Toast.LENGTH_LONG).show()
                 openAccessibilitySettings()
                 return@setOnClickListener
             }
 
-            binding.tvStatusMessage.text = getString(R.string.status_processing)
+            tvStatusMessage.text = getString(R.string.status_processing)
             AfsAccessibilityService.triggerCloseProcess(this, source = "Kullanıcı Test Butonu")
         }
 
         // 2. Erişilebilirlik İzni Butonu
-        binding.btnPermAccessibility.setOnClickListener {
+        btnPermAccessibility.setOnClickListener {
             openAccessibilitySettings()
         }
 
         // 3. Overlay (Üstte Gösterme) İzni Butonu
-        binding.btnPermOverlay.setOnClickListener {
+        btnPermOverlay.setOnClickListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val intent = Intent(
                     Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -91,7 +110,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // 4. Pil Optimizasyonu Butonu
-        binding.btnPermBattery.setOnClickListener {
+        btnPermBattery.setOnClickListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 try {
                     val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
@@ -112,23 +131,23 @@ class MainActivity : AppCompatActivity() {
         // Erişilebilirlik Kontrolü
         val isAccEnabled = isAccessibilityServiceEnabled()
         if (isAccEnabled) {
-            binding.btnPermAccessibility.text = getString(R.string.perm_accessibility_ok)
-            binding.btnPermAccessibility.isEnabled = false
-            binding.btnPermAccessibility.backgroundTintList = ColorStateList.valueOf(successColor)
+            btnPermAccessibility.text = getString(R.string.perm_accessibility_ok)
+            btnPermAccessibility.isEnabled = false
+            btnPermAccessibility.backgroundTintList = ColorStateList.valueOf(successColor)
         } else {
-            binding.btnPermAccessibility.text = getString(R.string.perm_accessibility_enable)
-            binding.btnPermAccessibility.isEnabled = true
+            btnPermAccessibility.text = getString(R.string.perm_accessibility_enable)
+            btnPermAccessibility.isEnabled = true
         }
 
         // Overlay Kontrolü
         val isOverlayEnabled = Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this)
         if (isOverlayEnabled) {
-            binding.btnPermOverlay.text = getString(R.string.perm_overlay_ok)
-            binding.btnPermOverlay.isEnabled = false
-            binding.btnPermOverlay.backgroundTintList = ColorStateList.valueOf(successColor)
+            btnPermOverlay.text = getString(R.string.perm_overlay_ok)
+            btnPermOverlay.isEnabled = false
+            btnPermOverlay.backgroundTintList = ColorStateList.valueOf(successColor)
         } else {
-            binding.btnPermOverlay.text = getString(R.string.perm_overlay_enable)
-            binding.btnPermOverlay.isEnabled = true
+            btnPermOverlay.text = getString(R.string.perm_overlay_enable)
+            btnPermOverlay.isEnabled = true
         }
 
         // Pil Kontrolü
@@ -136,12 +155,12 @@ class MainActivity : AppCompatActivity() {
         val isBatteryIgnored = Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
                 powerManager.isIgnoringBatteryOptimizations(packageName)
         if (isBatteryIgnored) {
-            binding.btnPermBattery.text = getString(R.string.perm_battery_ok)
-            binding.btnPermBattery.isEnabled = false
-            binding.btnPermBattery.backgroundTintList = ColorStateList.valueOf(successColor)
+            btnPermBattery.text = getString(R.string.perm_battery_ok)
+            btnPermBattery.isEnabled = false
+            btnPermBattery.backgroundTintList = ColorStateList.valueOf(successColor)
         } else {
-            binding.btnPermBattery.text = getString(R.string.perm_battery_enable)
-            binding.btnPermBattery.isEnabled = true
+            btnPermBattery.text = getString(R.string.perm_battery_enable)
+            btnPermBattery.isEnabled = true
         }
     }
 
@@ -168,7 +187,7 @@ class MainActivity : AppCompatActivity() {
             override fun run() {
                 val status = AfsAccessibilityService.lastStatusMessage
                 if (status.isNotBlank()) {
-                    binding.tvStatusMessage.text = status
+                    tvStatusMessage.text = status
                 }
                 updatePermissionStates()
                 handler.postDelayed(this, 1500)

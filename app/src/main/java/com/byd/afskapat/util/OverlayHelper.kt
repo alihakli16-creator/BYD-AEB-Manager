@@ -12,7 +12,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
 import android.widget.Toast
-import com.byd.afskapat.R
+import com.mk.aebmanager.R
 
 /**
  * BYD DiLink multimedya ekranında AFS durumunu sürücüyü rahatsız etmeden
@@ -27,7 +27,6 @@ class OverlayHelper(private val context: Context) {
 
     fun showMessage(message: String, isSuccess: Boolean = true, durationMs: Long = 3500) {
         mainHandler.post {
-            // Overlay izni yoksa Android Toast olarak göster (Çökme önleme)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(context)) {
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                 return@post
@@ -52,7 +51,7 @@ class OverlayHelper(private val context: Context) {
                         PixelFormat.TRANSLUCENT
                     ).apply {
                         gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-                        y = 60 // Ekranın üstünden 60px aşağıda
+                        y = 60
                     }
 
                     windowManager.addView(overlayView, layoutParams)
@@ -66,7 +65,6 @@ class OverlayHelper(private val context: Context) {
                 mainHandler.postDelayed(dismissRunnable!!, durationMs)
 
             } catch (e: Exception) {
-                // Herhangi bir pencere hatasında güvenli fallback
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()
             }
         }
