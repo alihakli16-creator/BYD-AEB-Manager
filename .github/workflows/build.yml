@@ -21,18 +21,19 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Gradle Wrapper Yetkilendirmesi
-        run: chmod +x gradlew || true
+      - name: Gradle Wrapper İzinlerini Ayarla
+        run: chmod +x gradlew
 
       - name: Gradle ile APK Derle
-        run: ./gradlew assembleRelease --stacktrace
+        run: ./gradlew assembleRelease --stacktrace --no-daemon
 
-      - name: APK Dosyasını Yeniden Adlandır
+      - name: APK Dosyasını Hazırla
         run: |
           mkdir -p output_apk
-          cp app/build/outputs/apk/release/*.apk output_apk/AFS_Kapat_v2.0_Android10.apk || cp app/build/outputs/apk/debug/*.apk output_apk/AFS_Kapat_v2.0_Android10.apk
+          find app/build/outputs/apk/ -type f -name "*.apk" -exec cp {} output_apk/AFS_Kapat_v2.0_Android10.apk \;
+          ls -la output_apk/
 
-      - name: APK'yı GitHub Artifacts Olarak Kaydet
+      - name: APK'yı GitHub Artifacts Olarak Yükle
         uses: actions/upload-artifact@v4
         with:
           name: AFS_Kapat_v2.0_Android10_DiLink3

@@ -17,16 +17,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    signingConfigs {
-        create("release") {
-            // Android SDK varsayılan debug keystore ile otomatik imzalar (Araçta doğrudan kurulabilir)
-            storeFile = file("${android.buildTypes.getByName("debug").signingConfig?.storeFile ?: "keystore.jks"}")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-        }
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = false

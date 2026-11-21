@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.preference.PreferenceManager
 import com.byd.afskapat.service.AfsAccessibilityService
 
 /**
@@ -17,6 +16,9 @@ class BootReceiver : BroadcastReceiver() {
 
     companion object {
         private const val TAG = "AFSKapat_BootReceiver"
+        private const val PREFS_NAME = "afs_prefs"
+        private const val PREF_KEY_AUTO = "pref_auto_disable"
+        private const val PREF_KEY_DELAY = "pref_delay_seconds"
         private var lastTriggerTime = 0L
         private const val COOLDOWN_MS = 15_000L // 15 saniye içinde mükerrer tetiklemeleri önle
     }
@@ -25,8 +27,8 @@ class BootReceiver : BroadcastReceiver() {
         val action = intent?.action ?: return
         Log.d(TAG, "Sistem sinyali alındı: $action")
 
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val isAutoDisableEnabled = prefs.getBoolean("pref_auto_disable", true)
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val isAutoDisableEnabled = prefs.getBoolean(PREF_KEY_AUTO, true)
         if (!isAutoDisableEnabled) {
             Log.d(TAG, "Otomatik kapatma kullanıcı tarafından devre dışı bırakılmış.")
             return
@@ -39,8 +41,9 @@ class BootReceiver : BroadcastReceiver() {
         }
         lastTriggerTime = now
 
-        // Araç ekranı ve servislerin tam yüklenmesi için 3 saniye gecikme
-        val delayMs = prefs.getInt("pref_delay_seconds", 3) * 1000L
+        // Araç ekranı ve servislerin tam yüklenmesi için ayarlanmış bekleme süresi (varsayılan 3 sn)
+        val delaySeconds = prefs.getInt(PREF_KEY_DELAY, 3)
+        val delayMs = delaySeconds * 1000L
 
         Log.i(TAG, "AFS kapatma işlemi $delayMs ms sonra başlatılacak...")
         Handler(Looper.getMainLooper()).postDelayed({

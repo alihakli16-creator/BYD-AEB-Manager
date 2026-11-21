@@ -3,6 +3,7 @@ package com.byd.afskapat
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,11 +14,16 @@ import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
+import androidx.core.content.ContextCompat
 import com.byd.afskapat.databinding.ActivityMainBinding
 import com.byd.afskapat.service.AfsAccessibilityService
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private const val PREFS_NAME = "afs_prefs"
+        private const val PREF_KEY_AUTO = "pref_auto_disable"
+    }
 
     private lateinit var binding: ActivityMainBinding
     private val handler = Handler(Looper.getMainLooper())
@@ -44,12 +50,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupPreferences() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        val isAuto = prefs.getBoolean("pref_auto_disable", true)
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val isAuto = prefs.getBoolean(PREF_KEY_AUTO, true)
         binding.switchAutoDisable.isChecked = isAuto
 
         binding.switchAutoDisable.setOnCheckedChangeListener { _, isChecked ->
-            prefs.edit().putBoolean("pref_auto_disable", isChecked).apply()
+            prefs.edit().putBoolean(PREF_KEY_AUTO, isChecked).apply()
             val text = if (isChecked) "Otomatik kapatma devrede" else "Otomatik kapatma devre dışı bırakıldı"
             Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
         }
@@ -101,12 +107,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updatePermissionStates() {
+        val successColor = ContextCompat.getColor(this, R.color.success)
+
         // Erişilebilirlik Kontrolü
         val isAccEnabled = isAccessibilityServiceEnabled()
         if (isAccEnabled) {
             binding.btnPermAccessibility.text = getString(R.string.perm_accessibility_ok)
             binding.btnPermAccessibility.isEnabled = false
-            binding.btnPermAccessibility.setBackgroundColor(getColor(R.color.success))
+            binding.btnPermAccessibility.backgroundTintList = ColorStateList.valueOf(successColor)
         } else {
             binding.btnPermAccessibility.text = getString(R.string.perm_accessibility_enable)
             binding.btnPermAccessibility.isEnabled = true
@@ -117,7 +125,7 @@ class MainActivity : AppCompatActivity() {
         if (isOverlayEnabled) {
             binding.btnPermOverlay.text = getString(R.string.perm_overlay_ok)
             binding.btnPermOverlay.isEnabled = false
-            binding.btnPermOverlay.setBackgroundColor(getColor(R.color.success))
+            binding.btnPermOverlay.backgroundTintList = ColorStateList.valueOf(successColor)
         } else {
             binding.btnPermOverlay.text = getString(R.string.perm_overlay_enable)
             binding.btnPermOverlay.isEnabled = true
@@ -130,7 +138,7 @@ class MainActivity : AppCompatActivity() {
         if (isBatteryIgnored) {
             binding.btnPermBattery.text = getString(R.string.perm_battery_ok)
             binding.btnPermBattery.isEnabled = false
-            binding.btnPermBattery.setBackgroundColor(getColor(R.color.success))
+            binding.btnPermBattery.backgroundTintList = ColorStateList.valueOf(successColor)
         } else {
             binding.btnPermBattery.text = getString(R.string.perm_battery_enable)
             binding.btnPermBattery.isEnabled = true
