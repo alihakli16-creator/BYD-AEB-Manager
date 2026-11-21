@@ -1,0 +1,40 @@
+name: AFS Kapat - Android 10 APK Derleme
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Kaynak Kodları Çek (Checkout)
+        uses: actions/checkout@v4
+
+      - name: Java 17 Kurulumu
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Gradle Wrapper Yetkilendirmesi
+        run: chmod +x gradlew || true
+
+      - name: Gradle ile APK Derle
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: APK Dosyasını Yeniden Adlandır
+        run: |
+          mkdir -p output_apk
+          cp app/build/outputs/apk/release/*.apk output_apk/AFS_Kapat_v2.0_Android10.apk || cp app/build/outputs/apk/debug/*.apk output_apk/AFS_Kapat_v2.0_Android10.apk
+
+      - name: APK'yı GitHub Artifacts Olarak Kaydet
+        uses: actions/upload-artifact@v4
+        with:
+          name: AFS_Kapat_v2.0_Android10_DiLink3
+          path: output_apk/AFS_Kapat_v2.0_Android10.apk
+          retention-days: 30

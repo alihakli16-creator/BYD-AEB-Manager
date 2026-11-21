@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llOverlayRoot"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#DD121316"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="20dp"
+    android:paddingVertical="12dp"
+    android:elevation="10dp">
+
+    <ImageView
+        android:id="@+id/ivOverlayIcon"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:src="@android:drawable/ic_dialog_info"
+        android:tint="@color/accent"
+        android:layout_marginEnd="12dp" />
+
+    <TextView
+        android:id="@+id/tvOverlayText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="AFS (Acil Fren Sistemi) Kapatıldı"
+        android:textColor="@color/text_primary"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+</LinearLayout>

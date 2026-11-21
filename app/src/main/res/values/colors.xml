@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#0F172A</color>
-
-    <!-- Status colours (screen) -->
-    <color name="status_off">#FF4CAF50</color>
-    <color name="status_on">#FFEF4444</color>
-    <color name="status_neutral">#FF94A3B8</color>
-    <color name="status_attention">#FFF59E0B</color>
-    <color name="status_error">#FFEF4444</color>
-    <color name="button_disabled">#FF475569</color>
-    <color name="grant_active">#FF2563EB</color>
-    <color name="grant_idle">#FF475569</color>
-    <color name="pill_no_action">#FF475569</color>
-
-    <!-- Status colours (floating HUD) -->
-    <color name="hud_off">#FF22C55E</color>
-    <color name="hud_on">#FFEF4444</color>
-    <color name="hud_neutral">#FF94A3B8</color>
-    <color name="hud_attention">#FFF59E0B</color>
+    <color name="primary">#0288D1</color>
+    <color name="primary_dark">#01579B</color>
+    <color name="accent">#00E676</color>
+    <color name="background_dark">#121316</color>
+    <color name="surface_dark">#1E222B</color>
+    <color name="card_border">#2C3240</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B0BEC5</color>
+    <color name="success">#00E676</color>
+    <color name="warning">#FFB300</color>
+    <color name="error">#FF5252</color>
 </resources>

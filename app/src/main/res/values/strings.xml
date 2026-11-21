@@ -1,58 +1,47 @@
 <resources>
-    <string name="app_name">BYD AEB Toggle</string>
-    <string name="accessibility_desc">Keeps the AEB Controller running in the background and immune to the "Close All" function.</string>
+    <!-- Uygulama Adı ve Rebranding -->
+    <string name="app_name">AFS Kapat</string>
+    <string name="app_subtitle">BYD DiLink 3.0 (Android 10) Acil Fren Otomasyonu</string>
+    <string name="accessibility_service_description">BYD SEAL U DM-i aracınız çalıştığında Acil Fren Sistemini (AEB / AFS) ADAS menüsünden otomatik olarak kapatmak için bu erişilebilirlik iznine ihtiyaç duyulur.</string>
 
-    <!-- Status (decision D7: "AEB ON" / "AEB OFF"; unverified is neutral) -->
-    <string name="status_aeb_on">AEB ON</string>
-    <string name="status_aeb_off">AEB OFF</string>
-    <string name="status_connecting">CONNECTING</string>
-    <string name="sub_last_read">Last read %1$d s ago</string>
-    <string name="sub_unverified">State unverified · last read %1$d s ago</string>
-    <string name="sub_unverified_no_age">State unverified</string>
-    <string name="sub_permission_required">PERMISSION REQUIRED</string>
-    <string name="sub_timeout">TIMEOUT: CHECK PORT 5555</string>
-    <string name="sub_waiting">Waiting for vehicle...</string>
-    <string name="hud_unknown">...</string>
+    <!-- Durum ve İzin Başlıkları -->
+    <string name="permission_header">Gerekli Sistem İzinleri</string>
+    <string name="perm_accessibility_title">1. Erişilebilirlik Servisi</string>
+    <string name="perm_accessibility_desc">ADAS menüsündeki AFS butonuna otomatik tıklamak için gereklidir.</string>
+    <string name="perm_accessibility_enable">İzni Aç</string>
+    <string name="perm_accessibility_ok">Aktif Edildi ✓</string>
 
-    <!-- Needs attention (S5, decision D6: no firmware gate; problems are reported here and on the HUD) -->
-    <string name="sub_attention_degraded">Needs attention: the car did not confirm. Retrying automatically.</string>
-    <string name="sub_attention_failed">Needs attention: last command failed (%1$s). Reconnecting.</string>
+    <string name="perm_overlay_title">2. Diğer Uygulamaların Üzerinde Gösterme</string>
+    <string name="perm_overlay_desc">Kapatma işlemi tamamlandığında ekranda durum bildirimini göstermek için gereklidir.</string>
+    <string name="perm_overlay_enable">İzin Ver</string>
+    <string name="perm_overlay_ok">İzin Verildi ✓</string>
 
-    <!-- Disable AEB Now -->
-    <string name="toast_disabling">⏳Disabling Now...</string>
-    <string name="toast_disable_sent">✓ Command sent. Verifying...</string>
-    <string name="toast_disable_failed">⚠ Command failed: %1$s</string>
-    <string name="toast_service_not_running">⚠ Service is starting. Try again in a few seconds.</string>
+    <string name="perm_battery_title">3. Arka Plan ve Pil Optimizasyonu</string>
+    <string name="perm_battery_desc">Aracın uyku modundan çıkışında servisin hemen tetiklenmesini sağlar.</string>
+    <string name="perm_battery_enable">Muaf Tut</string>
+    <string name="perm_battery_ok">Optimize Edilmedi (İdeal) ✓</string>
 
-    <!-- Service notification and main-screen texts (moved here from the code in S7, wording unchanged) -->
-    <string name="notif_title">AEB Stealth Active</string>
-    <string name="notif_text">Monitoring vehicle safety systems...</string>
-    <string name="notif_channel">AEB Service Channel</string>
-    <string name="btn_grant">Grant Permission</string>
-    <string name="toast_granting_hud">⏳Granting HUD..</string>
-    <string name="toast_granting">⏳Granting Permissions..</string>
-    <string name="toast_granted">✓ Permissions granted!</string>
-    <string name="toast_unauthorized">⚠ Unauthorized. Please check car screen for \'Allow USB Debugging\' popup.</string>
-    <string name="toast_autostart">Find \'%1$s\' and turn its toggle OFF to allow auto-start</string>
-    <string name="toast_autostart_manual">Please manually open car settings: Settings > DiLink > General > Apps > Disable Self-Start, then Find \'%1$s\' and turn its toggle OFF to allow auto-start</string>
+    <!-- Kontrol ve Eylemler -->
+    <string name="actions_header">Otomasyon Ayarları ve Kontrol</string>
+    <string name="auto_disable_switch">Araç her çalıştığında AFS\'yi otomatik kapat</string>
+    <string name="auto_disable_subtext">Kontak açıldığında ve multimedya ekranı uyandığında arka planda devreye girer.</string>
+    <string name="btn_test_close_now">🛡️ AFS\'yi Şimdi Kapat (Test Et)</string>
+    <string name="delay_label">Ateşleme sonrası bekleme süresi: %d sn</string>
 
-    <!-- Grant Permission checklist (S6) -->
-    <string name="prov_title">Grant Permission: result</string>
-    <string name="prov_not_authorized">The car did not accept the app\'s key. Look for the \"Allow USB debugging\" pop-up on the car screen, tap Always allow, then try again.</string>
-    <string name="prov_overlay_now">Overlay permission now: %1$s</string>
-    <string name="prov_granted">granted</string>
-    <string name="prov_missing">missing</string>
-    <string name="prov_note">OK = the car ran the command. FAIL = it did not (status in brackets). -- = not tried.</string>
-    <string name="prov_next">Next: auto-start settings</string>
-    <string name="prov_close">Close</string>
+    <!-- Canlı Durum ve Bildirim Mesajları -->
+    <string name="status_title">Canlı Durum Paneli</string>
+    <string name="status_waiting_vehicle">Araç bağlantısı ve çalıştırma bekleniyor…</string>
+    <string name="status_permissions_granted">Tüm gerekli izinler tanımlandı! Sistem hazır.</string>
+    <string name="status_permissions_missing">Uyarı: Otomasyon için eksik izinler bulunmaktadır!</string>
+    <string name="status_processing">İşlem yapılıyor, lütfen bekleyin…</string>
+    <string name="status_navigating_adas">Araç ayarları açılıyor, ADAS menüsüne gidiliyor…</string>
+    <string name="status_toggling_aeb">Acil fren anahtarı kapatılıyor…</string>
+    <string name="status_confirming_dialog">Kapatma onay penceresi onaylanıyor…</string>
+    <string name="status_aeb_disabled_success">✓ AFS (Acil Fren Sistemi) Başarıyla Kapatıldı!</string>
+    <string name="status_aeb_already_off">AFS sistemi bu sürüş döngüsünde zaten kapalı.</string>
+    <string name="status_timeout_error">Zaman aşımı: Ayarlar menüsünde AFS seçeneği bulunamadı.</string>
 
-    <!-- Event log (S3; opened by a long press on the status text or orb; in memory only) -->
-    <string name="log_title">Event log (%1$d entries)</string>
-    <string name="log_header">v%1$s · phase %2$s · AEB %3$s · link %4$s · mode %5$s</string>
-    <string name="log_empty">(no events yet)</string>
-    <string name="log_copy">Copy</string>
-    <string name="log_clear">Clear</string>
-    <string name="log_close">Close</string>
-    <string name="log_copied">Event log copied</string>
-    <string name="log_cleared">Event log cleared</string>
+    <!-- Güvenlik Uyarısı -->
+    <string name="warning_header">⚠️ Sürüş Güvenliği Bilgilendirmesi</string>
+    <string name="warning_body">Acil Fren Sistemi (AEB / AFS), çarpışma önleme güvenliği sağlayan bir donanımdır. Bu uygulama, her araç çalıştırmasında ayarlar menüsünden el ile kapatma zahmetini ortadan kaldırır. Sürüş güvenliği daima sürücünün sorumluluğundadır.</string>
 </resources>
