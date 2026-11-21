@@ -11,4 +11,8 @@
     <color name="success">#00E676</color>
     <color name="warning">#FFB300</color>
     <color name="error">#FF5252</color>
+
+    <!-- Mipmap ve Launcher İkonu Renkleri -->
+    <color name="ic_launcher_background">#121316</color>
+    <color name="ic_launcher_foreground">#00E676</color>
 </resources>
