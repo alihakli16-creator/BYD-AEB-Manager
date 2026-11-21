@@ -56,6 +56,9 @@ class OverlayHelper(private val context: Context) {
                 val tvText = overlayView?.findViewById<TextView>(R.id.tvOverlayText)
                 tvText?.text = message
 
+                val ivIcon = overlayView?.findViewById<android.widget.ImageView>(R.id.ivOverlayIcon)
+                ivIcon?.setImageResource(if (isSuccess) R.drawable.ic_shield else R.drawable.ic_info)
+
                 dismissRunnable?.let { mainHandler.removeCallbacks(it) }
                 dismissRunnable = Runnable { dismiss() }
                 mainHandler.postDelayed(dismissRunnable!!, durationMs)

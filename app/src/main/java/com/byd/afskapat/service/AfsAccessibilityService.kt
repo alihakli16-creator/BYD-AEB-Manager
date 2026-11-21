@@ -27,7 +27,7 @@ class AfsAccessibilityService : AccessibilityService() {
 
         private var instance: AfsAccessibilityService? = null
 
-        fun triggerCloseProcess(context: Context, source: String = "Manuel") {
+        fun triggerCloseProcess(@Suppress("UNUSED_PARAMETER") context: Context, source: String = "Manuel") {
             Log.d(TAG, "Kapatma süreci tetiklendi. Kaynak: $source")
             instance?.startAutomation() ?: run {
                 Log.w(TAG, "Erişilebilirlik servisi henüz aktif değil.")

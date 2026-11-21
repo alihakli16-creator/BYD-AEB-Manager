@@ -27,4 +27,12 @@
     <color name="status_error">#FF5252</color>
     <color name="button_disabled">#444B5A</color>
     <color name="pill_no_action">#2C3240</color>
+
+    <!-- HUD Renkleri (HudController.java) -->
+    <color name="hud_off">#00E676</color>
+    <color name="hud_on">#FF5252</color>
+    <color name="hud_neutral">#B0BEC5</color>
+    <color name="hud_attention">#FFB300</color>
+    <color name="hud_bg">#CC121316</color>
+    <color name="hud_text">#FFFFFF</color>
 </resources>

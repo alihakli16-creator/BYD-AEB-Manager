@@ -50,8 +50,14 @@
     <string name="log_copied">Günlük panoya kopyalandı</string>
     <string name="log_cleared">Günlük temizlendi</string>
 
-    <!-- Servis Bildirimleri (AebService.java) -->
+    <!-- Servis Bildirimleri (AebService.java & HudController.java) -->
     <string name="notif_title">AFS Kapat Arka Planda Aktif</string>
+    <string name="notif_text">AFS (Acil Fren Sistemi) izleniyor ve yönetiliyor</string>
+    <string name="notif_channel">AFS Servis Bildirimleri</string>
+    <string name="hud_unknown">---</string>
+    <string name="hud_off">AFS KAPALI</string>
+    <string name="hud_on">AFS AÇIK</string>
+    <string name="hud_title">AFS Durumu</string>
 
     <!-- Erişilebilirlik Servisi Bildirimleri -->
     <string name="accessibility_service_description">BYD SEAL U DM-i aracınız çalıştığında Acil Fren Sistemini (AEB / AFS) ADAS menüsünden otomatik olarak kapatmak için bu erişilebilirlik iznine ihtiyaç duyulur.</string>
