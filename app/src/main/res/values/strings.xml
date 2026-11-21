@@ -1,39 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Uygulama Adı ve Rebranding -->
+    <!-- Uygulama Adı (Rebranding) -->
     <string name="app_name">AFS Kapat</string>
     <string name="app_subtitle">BYD DiLink 3.0 (Android 10) Acil Fren Otomasyonu</string>
+
+    <!-- Durum ve Kontrol Metinleri (MainActivity.java) -->
+    <string name="status_aeb_off">AFS KAPALI</string>
+    <string name="status_aeb_on">AFS AÇIK</string>
+    <string name="status_connecting">Bağlanıyor…</string>
+    <string name="sub_last_read" formatted="false">Son okuma: %d sn önce</string>
+    <string name="sub_unverified" formatted="false">Doğrulanmamış (%d sn)</string>
+    <string name="sub_unverified_no_age">Doğrulanmamış durum</string>
+    <string name="sub_permission_required">Erişim izni gerekli</string>
+    <string name="sub_timeout">Zaman aşımı</string>
+    <string name="sub_waiting">Araç bekleniyor…</string>
+    <string name="sub_attention_degraded">Bağlantı zayıf, yeniden deneniyor</string>
+    <string name="sub_attention_failed" formatted="false">Hata: %s</string>
+
+    <!-- Butonlar ve Bildirimler (MainActivity.java) -->
+    <string name="btn_grant">İzinleri Tanımla</string>
+    <string name="toast_disable_sent">AFS kapatma komutu gönderildi</string>
+    <string name="toast_disable_failed" formatted="false">Kapatma başarısız: %s</string>
+    <string name="toast_disabling">AFS kapatılıyor…</string>
+    <string name="toast_service_not_running">Servis çalışmıyor</string>
+    <string name="toast_granting_hud">HUD izinleri tanımlanıyor…</string>
+    <string name="toast_granting">İzinler ayarlanıyor…</string>
+    <string name="toast_granted">Tüm izinler verildi!</string>
+    <string name="toast_unauthorized">ADB yetkilendirmesi başarısız</string>
+    <string name="toast_autostart" formatted="false">%s otomatik başlatıldı</string>
+    <string name="toast_autostart_manual" formatted="false">%s manuel başlatıldı</string>
+
+    <!-- İzin ve Yetkilendirme Diyalogları -->
+    <string name="prov_title">Sistem İzinleri</string>
+    <string name="prov_not_authorized">ADB bağlantısı yetkilendirilmedi</string>
+    <string name="prov_overlay_now" formatted="false">Üstte gösterme izni: %s</string>
+    <string name="prov_granted">Verildi</string>
+    <string name="prov_missing">Eksik</string>
+    <string name="prov_note">Lütfen gerekli izinleri onaylayın</string>
+    <string name="prov_next">İleri</string>
+    <string name="prov_close">Kapat</string>
+
+    <!-- Sistem Günlüğü (Log Dialog) -->
+    <string name="log_title" formatted="false">Sistem Günlüğü (%d)</string>
+    <string name="log_header" formatted="false">AFS Kapat v%s | Faz: %s | Durum: %s</string>
+    <string name="log_empty">Henüz kayıt yok.</string>
+    <string name="log_close">Kapat</string>
+    <string name="log_clear">Temizle</string>
+    <string name="log_copy">Kopyala</string>
+    <string name="log_copied">Günlük panoya kopyalandı</string>
+    <string name="log_cleared">Günlük temizlendi</string>
+
+    <!-- Servis Bildirimleri (AebService.java) -->
+    <string name="notif_title">AFS Kapat Arka Planda Aktif</string>
+
+    <!-- Erişilebilirlik Servisi Bildirimleri -->
     <string name="accessibility_service_description">BYD SEAL U DM-i aracınız çalıştığında Acil Fren Sistemini (AEB / AFS) ADAS menüsünden otomatik olarak kapatmak için bu erişilebilirlik iznine ihtiyaç duyulur.</string>
-
-    <!-- Durum ve İzin Başlıkları -->
-    <string name="permission_header">Gerekli Sistem İzinleri</string>
-    <string name="perm_accessibility_title">1. Erişilebilirlik Servisi</string>
-    <string name="perm_accessibility_desc">ADAS menüsündeki AFS butonuna otomatik tıklamak için gereklidir.</string>
-    <string name="perm_accessibility_enable">İzni Aç</string>
-    <string name="perm_accessibility_ok">Aktif Edildi ✓</string>
-
-    <string name="perm_overlay_title">2. Diğer Uygulamaların Üzerinde Gösterme</string>
-    <string name="perm_overlay_desc">Kapatma işlemi tamamlandığında ekranda durum bildirimini göstermek için gereklidir.</string>
-    <string name="perm_overlay_enable">İzin Ver</string>
-    <string name="perm_overlay_ok">İzin Verildi ✓</string>
-
-    <string name="perm_battery_title">3. Arka Plan ve Pil Optimizasyonu</string>
-    <string name="perm_battery_desc">Aracın uyku modundan çıkışında servisin hemen tetiklenmesini sağlar.</string>
-    <string name="perm_battery_enable">Muaf Tut</string>
-    <string name="perm_battery_ok">Optimize Edilmedi (İdeal) ✓</string>
-
-    <!-- Kontrol ve Eylemler -->
-    <string name="actions_header">Otomasyon Ayarları ve Kontrol</string>
-    <string name="auto_disable_switch">Araç her çalıştığında AFS\'yi otomatik kapat</string>
-    <string name="auto_disable_subtext">Kontak açıldığında ve multimedya ekranı uyandığında arka planda devreye girer.</string>
-    <string name="btn_test_close_now">AFS\'yi Şimdi Kapat (Test Et)</string>
-    <string name="delay_label" formatted="false">Ateşleme sonrası bekleme süresi: %d sn</string>
-
-    <!-- Canlı Durum ve Bildirim Mesajları -->
-    <string name="status_title">Canlı Durum Paneli</string>
-    <string name="status_waiting_vehicle">Araç bağlantısı ve çalıştırma bekleniyor…</string>
     <string name="status_permissions_granted">Tüm gerekli izinler tanımlandı! Sistem hazır.</string>
-    <string name="status_permissions_missing">Uyarı: Otomasyon için eksik izinler bulunmaktadır!</string>
     <string name="status_processing">İşlem yapılıyor, lütfen bekleyin…</string>
     <string name="status_navigating_adas">Araç ayarları açılıyor, ADAS menüsüne gidiliyor…</string>
     <string name="status_toggling_aeb">Acil fren anahtarı kapatılıyor…</string>
@@ -41,8 +63,4 @@
     <string name="status_aeb_disabled_success">AFS (Acil Fren Sistemi) Başarıyla Kapatıldı!</string>
     <string name="status_aeb_already_off">AFS sistemi bu sürüş döngüsünde zaten kapalı.</string>
     <string name="status_timeout_error">Zaman aşımı: Ayarlar menüsünde AFS seçeneği bulunamadı.</string>
-
-    <!-- Güvenlik Uyarısı -->
-    <string name="warning_header">Sürüş Güvenliği Bilgilendirmesi</string>
-    <string name="warning_body">Acil Fren Sistemi (AEB / AFS), çarpışma önleme güvenliği sağlayan bir donanımdır. Bu uygulama, her araç çalıştırmasında ayarlar menüsünden el ile kapatma zahmetini ortadan kaldırır. Sürüş güvenliği daima sürücünün sorumluluğundadır.</string>
 </resources>

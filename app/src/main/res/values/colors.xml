@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Ana Renkler -->
     <color name="primary">#0288D1</color>
     <color name="primary_dark">#01579B</color>
     <color name="accent">#00E676</color>
@@ -15,4 +16,15 @@
     <!-- Mipmap ve Launcher İkonu Renkleri -->
     <color name="ic_launcher_background">#121316</color>
     <color name="ic_launcher_foreground">#00E676</color>
+
+    <!-- Orijinal MainActivity Renkleri -->
+    <color name="grant_active">#00E676</color>
+    <color name="grant_idle">#0288D1</color>
+    <color name="status_neutral">#B0BEC5</color>
+    <color name="status_off">#00E676</color>
+    <color name="status_on">#FF5252</color>
+    <color name="status_attention">#FFB300</color>
+    <color name="status_error">#FF5252</color>
+    <color name="button_disabled">#444B5A</color>
+    <color name="pill_no_action">#2C3240</color>
 </resources>

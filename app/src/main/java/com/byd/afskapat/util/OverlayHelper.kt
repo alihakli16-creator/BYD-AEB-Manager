@@ -12,12 +12,8 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
 import android.widget.Toast
-import com.mk.aebmanager.R
+import com.byd.aebtoggle.R
 
-/**
- * BYD DiLink multimedya ekranında AFS durumunu sürücüyü rahatsız etmeden
- * üst bant şeklinde gösteren ve otomatik kaybolan overlay yardımcısı.
- */
 class OverlayHelper(private val context: Context) {
 
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager

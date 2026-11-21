@@ -9,16 +9,12 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
-import com.mk.aebmanager.R
+import com.byd.aebtoggle.R
 import com.byd.afskapat.util.OverlayHelper
 
 /**
  * DiLink 3.0 (Android 10) Erişilebilirlik Servisi.
- * Kinex Launcher benzeri mantık ile çalışır:
- * 1. Araç ayarları açıldığında ADAS menüsünü tespit eder ve tıklar.
- * 2. AFS / AEB anahtarını (Switch) arar.
- * 3. AFS açıksa kapatır ve çıkan onay penceresindeki "Tamam/Onayla" butonuna basar.
- * 4. Kapatma tamamlandığında otomatik olarak ana ekrana (Home) döner.
+ * Araç çalıştığında AFS'yi otomatik kapatır.
  */
 class AfsAccessibilityService : AccessibilityService() {
 
@@ -80,10 +76,7 @@ class AfsAccessibilityService : AccessibilityService() {
     }
 
     fun startAutomation() {
-        if (isAutomationActive) {
-            Log.d(TAG, "Otomasyon zaten devam ediyor...")
-            return
-        }
+        if (isAutomationActive) return
 
         isAutomationActive = true
         automationStartTime = SystemClock.elapsedRealtime()
@@ -103,45 +96,29 @@ class AfsAccessibilityService : AccessibilityService() {
 
     private fun openBydSettings() {
         val targetPackages = listOf("com.byd.carsetting", "com.byd.settings", "com.android.settings")
-        var intentLaunched = false
-
         for (pkg in targetPackages) {
             val intent = packageManager.getLaunchIntentForPackage(pkg)
             if (intent != null) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
                 startActivity(intent)
-                intentLaunched = true
-                Log.d(TAG, "Ayarlar paketi başlatıldı: $pkg")
-                break
+                return
             }
         }
-
-        if (!intentLaunched) {
-            val fallbackIntent = Intent(android.provider.Settings.ACTION_SETTINGS).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            startActivity(fallbackIntent)
-        }
+        startActivity(Intent(android.provider.Settings.ACTION_SETTINGS).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (!isAutomationActive || event == null) return
-
         val rootNode = rootInActiveWindow ?: return
 
         try {
-            if (handleConfirmationDialog(rootNode)) {
-                return
-            }
-
-            if (findAndToggleAebSwitch(rootNode)) {
-                return
-            }
-
+            if (handleConfirmationDialog(rootNode)) return
+            if (findAndToggleAebSwitch(rootNode)) return
             navigateToAdasTab(rootNode)
-
         } catch (e: Exception) {
-            Log.e(TAG, "Erişilebilirlik olayında hata: ${e.message}", e)
+            Log.e(TAG, "Erişilebilirlik hatası: ${e.message}", e)
         }
     }
 
@@ -152,7 +129,6 @@ class AfsAccessibilityService : AccessibilityService() {
                 if (node.isVisibleToUser) {
                     val clickableNode = findClickableParent(node) ?: node
                     if (clickableNode.isClickable && !clickableNode.isSelected) {
-                        Log.d(TAG, "ADAS sekmesi bulundu ve tıklanıyor: $keyword")
                         clickableNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
                         return true
                     }
@@ -167,23 +143,18 @@ class AfsAccessibilityService : AccessibilityService() {
             val nodes = rootNode.findAccessibilityNodeInfosByText(keyword)
             for (labelNode in nodes) {
                 if (!labelNode.isVisibleToUser) continue
-
                 val switchNode = findAssociatedSwitch(labelNode)
                 if (switchNode != null) {
                     if (switchNode.isChecked) {
-                        Log.d(TAG, "AFS Anahtarı AÇIK tespit edildi. Kapatılıyor: $keyword")
                         updateStatus(getString(R.string.status_toggling_aeb))
                         switchNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
                         mainHandler.postDelayed({
                             val currentRoot = rootInActiveWindow
-                            if (currentRoot != null) {
-                                handleConfirmationDialog(currentRoot)
-                            }
+                            if (currentRoot != null) handleConfirmationDialog(currentRoot)
                         }, 350)
                         return true
                     } else {
-                        Log.d(TAG, "AFS zaten KAPALI durumda.")
                         completeAutomation(alreadyOff = true)
                         return true
                     }
@@ -200,7 +171,6 @@ class AfsAccessibilityService : AccessibilityService() {
                 if (node.isVisibleToUser) {
                     val clickableNode = findClickableParent(node) ?: node
                     if (clickableNode.isClickable) {
-                        Log.d(TAG, "Onay butonu bulundu ve onaylanıyor: $keyword")
                         updateStatus(getString(R.string.status_confirming_dialog))
                         clickableNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
@@ -217,16 +187,12 @@ class AfsAccessibilityService : AccessibilityService() {
 
     private fun findAssociatedSwitch(node: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         if (isSwitchWidget(node)) return node
-
         var current: AccessibilityNodeInfo? = node.parent
         var depth = 0
         while (current != null && depth < 3) {
-            val count = current.childCount
-            for (i in 0 until count) {
+            for (i in 0 until current.childCount) {
                 val child = current.getChild(i) ?: continue
-                if (isSwitchWidget(child)) {
-                    return child
-                }
+                if (isSwitchWidget(child)) return child
             }
             current = current.parent
             depth++
@@ -236,9 +202,9 @@ class AfsAccessibilityService : AccessibilityService() {
 
     private fun isSwitchWidget(node: AccessibilityNodeInfo): Boolean {
         val className = node.className?.toString() ?: ""
-        return className.contains("Switch", ignoreCase = true) ||
-                className.contains("CheckBox", ignoreCase = true) ||
-                className.contains("ToggleButton", ignoreCase = true) ||
+        return className.contains("Switch", true) ||
+                className.contains("CheckBox", true) ||
+                className.contains("ToggleButton", true) ||
                 node.isCheckable
     }
 
@@ -277,6 +243,5 @@ class AfsAccessibilityService : AccessibilityService() {
 
     override fun onInterrupt() {
         isAutomationActive = false
-        Log.w(TAG, "AfsAccessibilityService kesintiye uğradı.")
     }
 }

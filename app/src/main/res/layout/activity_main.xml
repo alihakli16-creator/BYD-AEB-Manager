@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_dark"
@@ -21,7 +20,6 @@
             android:layout_marginBottom="16dp">
 
             <TextView
-                android:id="@+id/tvAppTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -31,300 +29,176 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="#2600E676"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="4dp"
-                android:text="BYD SEAL U - Android 10"
+                android:text="BYD SEAL U • Android 10"
                 android:textColor="@color/accent"
                 android:textSize="12sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/app_subtitle"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp"
-            android:layout_marginBottom="20dp" />
-
-        <!-- 1. Manuel Kontrol Kartı (Büyük Aksiyon Butonu) -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/surface_dark"
-            app:cardCornerRadius="14dp"
-            app:strokeColor="@color/card_border"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/actions_header"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switchAutoDisable"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="@string/auto_disable_switch"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="16dp"
-                    android:text="@string/auto_disable_subtext"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnTestCloseNow"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:backgroundTint="@color/primary"
-                    android:text="@string/btn_test_close_now"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="10dp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- 2. İzinler Kartı -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/surface_dark"
-            app:cardCornerRadius="14dp"
-            app:strokeColor="@color/card_border"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/permission_header"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
-
-                <!-- Erişilebilirlik İzni -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingVertical="8dp">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/perm_accessibility_title"
-                            android:textColor="@color/text_primary"
-                            android:textStyle="bold"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/perm_accessibility_desc"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnPermAccessibility"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/perm_accessibility_enable"
-                        app:cornerRadius="8dp" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/card_border"
-                    android:layout_marginVertical="6dp" />
-
-                <!-- Overlay İzni -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingVertical="8dp">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/perm_overlay_title"
-                            android:textColor="@color/text_primary"
-                            android:textStyle="bold"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/perm_overlay_desc"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnPermOverlay"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/perm_overlay_enable"
-                        app:cornerRadius="8dp" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/card_border"
-                    android:layout_marginVertical="6dp" />
-
-                <!-- Pil Muafiyeti -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingVertical="8dp">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/perm_battery_title"
-                            android:textColor="@color/text_primary"
-                            android:textStyle="bold"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/perm_battery_desc"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnPermBattery"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/perm_battery_enable"
-                        app:cornerRadius="8dp" />
-                </LinearLayout>
-
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- 3. Canlı Durum ve Log Paneli -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/surface_dark"
-            app:cardCornerRadius="14dp"
-            app:strokeColor="@color/card_border"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/status_title"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tvStatusMessage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="#161A22"
-                    android:padding="12dp"
-                    android:text="@string/status_waiting_vehicle"
-                    android:textColor="@color/accent"
-                    android:textSize="14sp"
-                    android:fontFamily="monospace" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- 4. Güvenlik Uyarısı -->
+        <!-- Canlı Durum Kartı -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#1AE65100"
+            android:background="@drawable/segmented_pill_bg"
             android:orientation="vertical"
-            android:padding="14dp"
-            android:layout_marginBottom="24dp">
+            android:padding="18dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <View
+                    android:id="@+id/status_dot"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:background="@drawable/status_orb_gray"
+                    android:layout_marginEnd="10dp" />
+
+                <TextView
+                    android:id="@+id/status_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/status_connecting"
+                    android:textColor="@color/status_neutral"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/status_subtext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/sub_waiting"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Kapatma Modu Seçimi (RadioGroup) -->
+        <LinearLayout
+            android:id="@+id/row_protection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/segmented_pill_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/warning_header"
-                android:textColor="@color/warning"
+                android:text="Çalışma Modu"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:textSize="14sp"
-                android:layout_marginBottom="4dp" />
+                android:layout_marginBottom="10dp" />
 
-            <TextView
+            <RadioGroup
+                android:id="@+id/rg_protection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/warning_body"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:lineSpacingExtra="2dp" />
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/rb_no_action"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/segmented_pill_inactive_bg"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="Pasif"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp"
+                    android:layout_marginEnd="6dp" />
+
+                <RadioButton
+                    android:id="@+id/rb_once_on_start"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1.2"
+                    android:background="@drawable/segmented_pill_inactive_bg"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="Açılışta 1 Kez"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp"
+                    android:layout_marginEnd="6dp" />
+
+                <RadioButton
+                    android:id="@+id/rb_auto_disable"
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_weight="1.2"
+                    android:background="@drawable/segmented_pill_inactive_bg"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="Sürekli Kapat"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp" />
+            </RadioGroup>
         </LinearLayout>
+
+        <!-- Seçenekler Satırı -->
+        <LinearLayout
+            android:id="@+id/row_toggles"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/segmented_pill_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <CheckBox
+                android:id="@+id/cb_boot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Açılışta otomatik başlat (Boot)"
+                android:textColor="@color/text_primary"
+                android:checked="true"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/cb_floating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Ekranda durum bildirimini göster (Overlay)"
+                android:textColor="@color/text_primary"
+                android:checked="true"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Manuel Kapat Butonu -->
+        <Button
+            android:id="@+id/btn_disable_now"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:backgroundTint="@color/primary"
+            android:text="🛡️ AFS'yi Şimdi Kapat (Manuel)"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <!-- İzinleri Yetkilendir Butonu -->
+        <Button
+            android:id="@+id/btn_grant_permissions"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:backgroundTint="@color/surface_dark"
+            android:text="@string/btn_grant"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:layout_marginBottom="16dp" />
 
     </LinearLayout>
 </ScrollView>

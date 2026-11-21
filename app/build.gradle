@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'com.mk.aebmanager'
+    namespace 'com.byd.aebtoggle'
     compileSdk 34
 
     defaultConfig {
@@ -14,7 +14,12 @@ android {
         versionCode 20
         versionName "2.0-dilink3"
 
+        buildConfigField "String", "APP_DISPLAY_NAME", "\"AFS Kapat\""
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     buildTypes {
@@ -48,9 +53,9 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // Core modülü (Varsa)
-    try {
+    if (rootProject.findProject(':core') != null) {
         implementation project(':core')
-    } catch (ignored) {}
+    }
 
     // Kotlin Standart Kütüphanesi
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.22'

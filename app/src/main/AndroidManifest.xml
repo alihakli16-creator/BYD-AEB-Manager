@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
@@ -22,9 +23,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AfsKapat">
 
-        <!-- Ana Kullanıcı Arayüzü (BYD Ekranına Uygun) -->
+        <!-- Ana Kullanıcı Arayüzü (com.byd.aebtoggle) -->
         <activity
-            android:name="com.byd.afskapat.MainActivity"
+            android:name="com.byd.aebtoggle.MainActivity"
             android:exported="true"
             android:screenOrientation="unspecified"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize">
@@ -34,7 +35,12 @@
             </intent-filter>
         </activity>
 
-        <!-- Kinex / DiLink Erişilebilirlik Servisi (AEB'yi Otomatik Kapatır) -->
+        <!-- Yerleşik BYD ADB Arka Plan Servisi -->
+        <service
+            android:name="com.byd.aebtoggle.AebService"
+            android:exported="false" />
+
+        <!-- Erişilebilirlik Tabanlı Kapatma Servisi -->
         <service
             android:name="com.byd.afskapat.service.AfsAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
@@ -47,7 +53,7 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
-        <!-- Araç Çalıştırma / Boot / Ekran Açılma Tetikleyicisi -->
+        <!-- Kontak / Ateşleme Tetikleyicisi -->
         <receiver
             android:name="com.byd.afskapat.receiver.BootReceiver"
             android:enabled="true"
