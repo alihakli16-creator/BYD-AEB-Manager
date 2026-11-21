@@ -34,7 +34,6 @@ class AfsAccessibilityService : AccessibilityService() {
         fun triggerCloseProcess(context: Context, source: String = "Manuel") {
             Log.d(TAG, "Kapatma süreci tetiklendi. Kaynak: $source")
             instance?.startAutomation() ?: run {
-                // Servis henüz bağlı değilse ayarlara yönlendir
                 Log.w(TAG, "Erişilebilirlik servisi henüz aktif değil.")
             }
         }
@@ -46,22 +45,19 @@ class AfsAccessibilityService : AccessibilityService() {
     @Volatile
     private var isAutomationActive = false
     private var automationStartTime = 0L
-    private val timeoutMs = 15_000L // 15 saniye zaman aşımı koruması
+    private val timeoutMs = 15_000L
 
-    // ADAS ve Güvenlik Menüsü Anahtar Kelimeleri (Türkçe, İngilizce ve Sistem Etiketleri)
     private val adasKeywords = listOf(
         "adas", "sürüş asistanı", "sürüş destek", "güvenlik yardımı",
         "driving assist", "safety assist", "active safety", "akıllı sürüş"
     )
 
-    // Acil Durum Freni (AEB/AFS) Anahtar Kelimeleri
     private val aebKeywords = listOf(
         "otomatik acil fren", "acil durum freni", "acil fren", "otomatik frenleme",
         "aeb", "automatic emergency braking", "autonomous emergency braking",
         "pcw & aeb", "ön çarpışma önleme"
     )
 
-    // Onay Kutusu Anahtar Kelimeleri
     private val confirmKeywords = listOf(
         "tamam", "onayla", "kapat", "devre dışı bırak", "evet",
         "ok", "confirm", "turn off", "disable", "sure"
@@ -94,10 +90,8 @@ class AfsAccessibilityService : AccessibilityService() {
         updateStatus(getString(R.string.status_processing))
         overlayHelper.showMessage(getString(R.string.status_navigating_adas), durationMs = 2500)
 
-        // BYD Ayarlarını aç
         openBydSettings()
 
-        // Güvenlik zaman aşımı zamanlayıcısı
         mainHandler.postDelayed({
             if (isAutomationActive && SystemClock.elapsedRealtime() - automationStartTime >= timeoutMs) {
                 isAutomationActive = false
@@ -136,17 +130,14 @@ class AfsAccessibilityService : AccessibilityService() {
         val rootNode = rootInActiveWindow ?: return
 
         try {
-            // Adım 1: Onay penceresi açıksa önce onu onayla
             if (handleConfirmationDialog(rootNode)) {
                 return
             }
 
-            // Adım 2: AEB anahtarını bul ve kapat
             if (findAndToggleAebSwitch(rootNode)) {
                 return
             }
 
-            // Adım 3: Eğer henüz ADAS sekmesinde değilsek, ADAS sekmesine tıkla
             navigateToAdasTab(rootNode)
 
         } catch (e: Exception) {
@@ -154,9 +145,6 @@ class AfsAccessibilityService : AccessibilityService() {
         }
     }
 
-    /**
-     * ADAS Sekmesine Geçiş
-     */
     private fun navigateToAdasTab(rootNode: AccessibilityNodeInfo): Boolean {
         for (keyword in adasKeywords) {
             val nodes = rootNode.findAccessibilityNodeInfosByText(keyword)
@@ -174,16 +162,12 @@ class AfsAccessibilityService : AccessibilityService() {
         return false
     }
 
-    /**
-     * AEB / AFS Anahtarını Bulma ve Kapatma
-     */
     private fun findAndToggleAebSwitch(rootNode: AccessibilityNodeInfo): Boolean {
         for (keyword in aebKeywords) {
             val nodes = rootNode.findAccessibilityNodeInfosByText(keyword)
             for (labelNode in nodes) {
                 if (!labelNode.isVisibleToUser) continue
 
-                // İlgili satırdaki Switch / CheckBox bileşenini ara
                 val switchNode = findAssociatedSwitch(labelNode)
                 if (switchNode != null) {
                     if (switchNode.isChecked) {
@@ -191,7 +175,6 @@ class AfsAccessibilityService : AccessibilityService() {
                         updateStatus(getString(R.string.status_toggling_aeb))
                         switchNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
-                        // 350ms sonra tekrar kontrol et ve onay penceresini bekle
                         mainHandler.postDelayed({
                             val currentRoot = rootInActiveWindow
                             if (currentRoot != null) {
@@ -200,7 +183,6 @@ class AfsAccessibilityService : AccessibilityService() {
                         }, 350)
                         return true
                     } else {
-                        // Zaten kapalı
                         Log.d(TAG, "AFS zaten KAPALI durumda.")
                         completeAutomation(alreadyOff = true)
                         return true
@@ -211,9 +193,6 @@ class AfsAccessibilityService : AccessibilityService() {
         return false
     }
 
-    /**
-     * BYD Kapatma Onay Diyalogunu Otomatik Onaylama
-     */
     private fun handleConfirmationDialog(rootNode: AccessibilityNodeInfo): Boolean {
         for (keyword in confirmKeywords) {
             val nodes = rootNode.findAccessibilityNodeInfosByText(keyword)
@@ -225,7 +204,6 @@ class AfsAccessibilityService : AccessibilityService() {
                         updateStatus(getString(R.string.status_confirming_dialog))
                         clickableNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
 
-                        // İşlem tamamlandı! 500ms sonra ana ekrana dön
                         mainHandler.postDelayed({
                             completeAutomation(alreadyOff = false)
                         }, 500)
@@ -237,14 +215,9 @@ class AfsAccessibilityService : AccessibilityService() {
         return false
     }
 
-    /**
-     * İlgili etiket düğümünün yakınındaki Switch/ToggleButton bileşenini bulur.
-     */
     private fun findAssociatedSwitch(node: AccessibilityNodeInfo): AccessibilityNodeInfo? {
-        // Önce doğrudan bu düğüm bir Switch mi?
         if (isSwitchWidget(node)) return node
 
-        // Parent veya kardeş düğümleri tara
         var current: AccessibilityNodeInfo? = node.parent
         var depth = 0
         while (current != null && depth < 3) {
@@ -278,9 +251,6 @@ class AfsAccessibilityService : AccessibilityService() {
         return null
     }
 
-    /**
-     * Otomasyonu başarıyla tamamlama ve Ana Ekrana dönüş
-     */
     private fun completeAutomation(alreadyOff: Boolean) {
         if (!isAutomationActive) return
         isAutomationActive = false
@@ -288,14 +258,13 @@ class AfsAccessibilityService : AccessibilityService() {
         if (alreadyOff) {
             val msg = getString(R.string.status_aeb_already_off)
             updateStatus(msg)
-            overlayHelper.showMessage("ℹ️ $msg", isSuccess = true)
+            overlayHelper.showMessage(msg, isSuccess = true)
         } else {
             val msg = getString(R.string.status_aeb_disabled_success)
             updateStatus(msg)
-            overlayHelper.showMessage("🛡️ $msg", isSuccess = true, durationMs = 4000)
+            overlayHelper.showMessage(msg, isSuccess = true, durationMs = 4000)
         }
 
-        // Kullanıcıyı ayarlarda bırakma, pürüzsüzce ana ekrana (Home) dön
         mainHandler.postDelayed({
             performGlobalAction(GLOBAL_ACTION_HOME)
         }, 300)

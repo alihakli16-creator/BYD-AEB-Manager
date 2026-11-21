@@ -37,7 +37,7 @@
                 android:background="#2600E676"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="4dp"
-                android:text="BYD SEAL U • Android 10"
+                android:text="BYD SEAL U - Android 10"
                 android:textColor="@color/accent"
                 android:textSize="12sp"
                 android:textStyle="bold" />

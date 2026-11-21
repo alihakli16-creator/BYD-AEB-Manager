@@ -14,8 +14,7 @@
         android:id="@+id/ivOverlayIcon"
         android:layout_width="28dp"
         android:layout_height="28dp"
-        android:src="@android:drawable/ic_dialog_info"
-        android:tint="@color/accent"
+        android:src="@drawable/ic_info"
         android:layout_marginEnd="12dp" />
 
     <TextView

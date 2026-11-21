@@ -17,9 +17,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@android:drawable/ic_dialog_alert"
+        android:icon="@drawable/ic_shield"
         android:label="@string/app_name"
-        android:roundIcon="@android:drawable/ic_dialog_alert"
+        android:roundIcon="@drawable/ic_shield"
         android:supportsRtl="true"
         android:theme="@style/Theme.AfsKapat">
 
@@ -57,9 +57,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
-                <action android:name="android.intent.action.SCREEN_ON" />
-                <action android:name="android.intent.action.USER_PRESENT" />
-                <!-- BYD Özel Güç ve Ateşleme Broadcastleri -->
                 <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />

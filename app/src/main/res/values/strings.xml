@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Uygulama Adı ve Rebranding -->
     <string name="app_name">AFS Kapat</string>
@@ -25,8 +26,8 @@
     <string name="actions_header">Otomasyon Ayarları ve Kontrol</string>
     <string name="auto_disable_switch">Araç her çalıştığında AFS\'yi otomatik kapat</string>
     <string name="auto_disable_subtext">Kontak açıldığında ve multimedya ekranı uyandığında arka planda devreye girer.</string>
-    <string name="btn_test_close_now">🛡️ AFS\'yi Şimdi Kapat (Test Et)</string>
-    <string name="delay_label">Ateşleme sonrası bekleme süresi: %d sn</string>
+    <string name="btn_test_close_now">AFS\'yi Şimdi Kapat (Test Et)</string>
+    <string name="delay_label" formatted="false">Ateşleme sonrası bekleme süresi: %d sn</string>
 
     <!-- Canlı Durum ve Bildirim Mesajları -->
     <string name="status_title">Canlı Durum Paneli</string>
@@ -37,11 +38,11 @@
     <string name="status_navigating_adas">Araç ayarları açılıyor, ADAS menüsüne gidiliyor…</string>
     <string name="status_toggling_aeb">Acil fren anahtarı kapatılıyor…</string>
     <string name="status_confirming_dialog">Kapatma onay penceresi onaylanıyor…</string>
-    <string name="status_aeb_disabled_success">✓ AFS (Acil Fren Sistemi) Başarıyla Kapatıldı!</string>
+    <string name="status_aeb_disabled_success">AFS (Acil Fren Sistemi) Başarıyla Kapatıldı!</string>
     <string name="status_aeb_already_off">AFS sistemi bu sürüş döngüsünde zaten kapalı.</string>
     <string name="status_timeout_error">Zaman aşımı: Ayarlar menüsünde AFS seçeneği bulunamadı.</string>
 
     <!-- Güvenlik Uyarısı -->
-    <string name="warning_header">⚠️ Sürüş Güvenliği Bilgilendirmesi</string>
+    <string name="warning_header">Sürüş Güvenliği Bilgilendirmesi</string>
     <string name="warning_body">Acil Fren Sistemi (AEB / AFS), çarpışma önleme güvenliği sağlayan bir donanımdır. Bu uygulama, her araç çalıştırmasında ayarlar menüsünden el ile kapatma zahmetini ortadan kaldırır. Sürüş güvenliği daima sürücünün sorumluluğundadır.</string>
 </resources>
