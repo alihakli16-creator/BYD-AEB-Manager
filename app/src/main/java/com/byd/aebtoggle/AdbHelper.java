@@ -18,20 +18,58 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AdbHelper {
 
-    public enum AdbStatus { SUCCESS, AUTH_FAIL, TIMEOUT, CLOSED, ERROR }
+    public enum AdbStatus { SUCCESS, AUTH_FAIL, TIMEOUT, CLOSED, ERROR, PORT_CLOSED }
     public static class AdbResponse {
         public AdbStatus status;
         public String output;
         public AdbResponse(AdbStatus s, String o) { this.status = s; this.output = o; }
     }
 
-    public static boolean grantSelfPermissions() {
-        return grantSelfPermissions(new ProvisioningReport());
+    public interface AdbProgressCallback {
+        void onProgress(String message);
     }
 
-    /** S6: same commands, order and fast-fail rules as v18.22; each result is also put into report. */
+    public static boolean grantSelfPermissions() {
+        return grantSelfPermissions(new ProvisioningReport(), null);
+    }
+
     public static boolean grantSelfPermissions(ProvisioningReport report) {
+        return grantSelfPermissions(report, null);
+    }
+
+    /** S6: same commands, order and fast-fail rules with 60s pairing window and diagnostics. */
+    public static boolean grantSelfPermissions(ProvisioningReport report, AdbProgressCallback callback) {
         String pkg = BuildConfig.APPLICATION_ID;
+
+        // 1. ADIM: ADB Yetkilendirme ve Handshake (60 saniye süreyle araç ekranında onay bekle)
+        StateStore.event("grant: 127.0.0.1:5555 baglantisi ve yetki kontrolu baslatiliyor...");
+        if (callback != null) callback.onProgress("ADB baglantisi kuruluyor (127.0.0.1:5555)...");
+
+        AdbResponse handshake = executeRemoteShellWithResult("", 15000, 60000, callback);
+        if (handshake.status == AdbStatus.PORT_CLOSED) {
+            report.recordFailureReason("PORT_CLOSED", "Port 5555 kapali! Arac gelistirici seceneklerinde kablosuz/ag ADB'yi acin.");
+            StateStore.event("grant: HATA - Port 5555 kapali, adbd dinlenmiyor.");
+            return false;
+        }
+        if (handshake.status == AdbStatus.AUTH_FAIL) {
+            report.recordFailureReason("AUTH_FAIL", "ADB yetkilendirmesi yapilmadi veya arac ekraninda reddedildi.");
+            StateStore.event("grant: HATA - ADB yetkilendirmesi reddedildi.");
+            return false;
+        }
+        if (handshake.status == AdbStatus.TIMEOUT) {
+            report.recordFailureReason("TIMEOUT", "Zaman asimi: Arac ekranindaki 'Her zaman izin ver' penceresine 60 saniye icinde dokunulmadi.");
+            StateStore.event("grant: HATA - 60 saniye icinde onay verilmedi (Zaman asimi).");
+            return false;
+        }
+        if (handshake.status != AdbStatus.SUCCESS) {
+            report.recordFailureReason("ERROR", "ADB baglanti hatasi: " + handshake.output);
+            StateStore.event("grant: HATA - " + handshake.output);
+            return false;
+        }
+
+        StateStore.event("grant: ADB yetkilendirmesi BASARILI! Sistem izinleri tanimlaniyor...");
+
+        // 2. ADIM: Izin Komutlarini Sirayla Calistir
         String[] cmds = {
             // Core permissions
             "pm grant " + pkg + " android.permission.SYSTEM_ALERT_WINDOW",
@@ -47,39 +85,29 @@ public class AdbHelper {
             "dumpsys deviceidle whitelist +" + pkg,
             "am set-standby-bucket " + pkg + " active"
         };
-        boolean adbAuthorized = false;
+
         for (int i = 0; i < cmds.length; i++) {
+            if (callback != null) callback.onProgress("Izinler tanimlaniyor (" + (i + 1) + "/" + (cmds.length + 1) + ")...");
             AdbResponse res = executeRemoteShellWithResult(cmds[i]);
             report.record(ProvisioningReport.forCommandIndex(i), toLink(res.status));
-            if (res.status == AdbStatus.SUCCESS) {
-                adbAuthorized = true;
-            } else if (res.status == AdbStatus.AUTH_FAIL) {
-                return false; // Fast fail if we are definitely unauthorized
-            } else if (i == 0 && (res.status == AdbStatus.TIMEOUT || res.status == AdbStatus.ERROR)) {
-                return false; // Fast fail: port 5555 unreachable, no point trying 12 more commands
-            }
+            StateStore.event("grant cmd " + (i + 1) + ": " + cmds[i] + " -> " + res.status);
+            android.util.Log.d("AdbHelper", "grant cmd " + (i + 1) + ": " + cmds[i] + " -> " + res.status);
         }
 
-        if (!adbAuthorized) {
-            return false;
-        }
-
-        // H07: enable our accessibility service WITHOUT clobbering the other enabled services.
-        // Rule: only write when the current list was read completely and looks well-formed.
+        // 3. ADIM: Erisilebilirlik Servisini Yapilandir
+        if (callback != null) callback.onProgress("Erisilebilirlik servisi aktif ediliyor...");
         try {
             AdbResponse currentAccRes = executeRemoteShellWithResult("settings get secure enabled_accessibility_services");
             if (currentAccRes == null || currentAccRes.status != AdbStatus.SUCCESS || currentAccRes.output == null) {
                 report.record(ProvisioningReport.Capability.ACCESSIBILITY,
                         currentAccRes == null ? LinkStatus.ERROR : toLink(currentAccRes.status));
-                android.util.Log.w("AEB_Toggle", "Accessibility list read failed ("
-                        + (currentAccRes == null ? "null" : currentAccRes.status.name())
-                        + ") - leaving accessibility settings untouched");
+                StateStore.event("grant: Erisilebilirlik listesi okunamadi");
             } else {
                 String currentAcc = currentAccRes.output.trim();
                 String ourService = pkg + "/" + AebAccessibilityService.class.getName();
                 if (!isSafeAccessibilityList(currentAcc)) {
-                    report.leftUntouched(ProvisioningReport.Capability.ACCESSIBILITY, "unexpected list format, left untouched");
-                    android.util.Log.w("AEB_Toggle", "Unexpected accessibility list format - leaving accessibility settings untouched");
+                    report.leftUntouched(ProvisioningReport.Capability.ACCESSIBILITY, "beklenmeyen liste formati");
+                    StateStore.event("grant: Erisilebilirlik listesi formati beklenmeyen yapida");
                 } else {
                     boolean listIsEmpty = currentAcc.isEmpty() || currentAcc.equals("null");
                     boolean alreadyEnabled = false;
@@ -90,25 +118,33 @@ public class AdbHelper {
                     }
                     if (!alreadyEnabled) {
                         String newAcc = listIsEmpty ? ourService : currentAcc + ":" + ourService;
-                        // Single quotes: the value was validated above and must reach "settings" as ONE argument.
                         AdbResponse w = executeRemoteShellWithResult("settings put secure enabled_accessibility_services '" + newAcc + "'");
                         report.record(ProvisioningReport.Capability.ACCESSIBILITY, toLink(w.status));
+                        StateStore.event("grant: Erisilebilirlik servisi listeye eklendi: " + w.status);
                     }
-                    // Ensure the master accessibility toggle is ON
                     AdbResponse m = executeRemoteShellWithResult("settings put secure accessibility_enabled 1");
                     report.record(ProvisioningReport.Capability.ACCESSIBILITY, toLink(m.status));
+                    StateStore.event("grant: Ana erisilebilirlik anahtari acildi: " + m.status);
                 }
             }
         } catch (Exception e) {
             report.record(ProvisioningReport.Capability.ACCESSIBILITY, LinkStatus.ERROR);
-            e.printStackTrace();
+            StateStore.event("grant: Erisilebilirlik hatasi: " + e.getMessage());
         }
 
-        return adbAuthorized;
+        // 4. ADIM: Ilk Kurulum Tamamlandi Bayragini Kaydet
+        android.content.Context appContext = MainApplication.getAppContext();
+        if (appContext != null) {
+            new AebSettings(appContext).setSetupComplete(true);
+            StateStore.event("grant: first_time_setup_complete = true kaydedildi.");
+        }
+
+        return true;
     }
 
     private static LinkStatus toLink(AdbStatus s) {
-        return s == null ? LinkStatus.ERROR : LinkStatus.valueOf(s.name());
+        if (s == null || s == AdbStatus.PORT_CLOSED) return LinkStatus.ERROR;
+        return LinkStatus.valueOf(s.name());
     }
 
     /** True for an empty list, the literal "null", or a colon separated list of component names. */
@@ -207,6 +243,10 @@ public class AdbHelper {
     };
 
     public static AdbResponse executeRemoteShellWithResult(String command) {
+        return executeRemoteShellWithResult(command, CALL_DEADLINE_MS, AdbShell.PAIRING_TIMEOUT_MS, null);
+    }
+
+    public static AdbResponse executeRemoteShellWithResult(String command, long deadlineMs, int pairingTimeoutMs, AdbProgressCallback callback) {
         final Socket socket = new Socket();
         final AtomicBoolean expired = new AtomicBoolean(false);
         final Runnable expire = () -> {
@@ -216,9 +256,11 @@ public class AdbHelper {
         final Object lock = new Object();
         @SuppressWarnings("unchecked")
         final ScheduledFuture<?>[] deadline = new ScheduledFuture<?>[]{
-                WATCHDOG.schedule(expire, CALL_DEADLINE_MS, TimeUnit.MILLISECONDS)};
+                WATCHDOG.schedule(expire, deadlineMs, TimeUnit.MILLISECONDS)};
         try {
-            socket.connect(new InetSocketAddress("127.0.0.1", 5555), 2000);
+            socket.setTcpNoDelay(true);
+            socket.connect(new InetSocketAddress("127.0.0.1", 5555), 3000);
+            AdbShell.ProgressListener pl = (callback != null) ? callback::onProgress : null;
             AdbShell.Result r = AdbShell.run(new AdbShell.Channel() {
                 @Override
                 public InputStream in() throws java.io.IOException {
@@ -243,12 +285,16 @@ public class AdbHelper {
                         }
                     }
                 }
-            }, command, AUTH);
+            }, command, AUTH, pairingTimeoutMs, pl);
             noteBanner(r.banner);
             LinkStatus status = (expired.get() && r.status != LinkStatus.SUCCESS) ? LinkStatus.TIMEOUT : r.status;
             return new AdbResponse(AdbStatus.valueOf(status.name()), r.output);
+        } catch (java.net.ConnectException e) {
+            return new AdbResponse(AdbStatus.PORT_CLOSED, "Connection refused (127.0.0.1:5555 port kapali)");
         } catch (java.net.SocketTimeoutException e) {
-            return new AdbResponse(AdbStatus.TIMEOUT, null);
+            return new AdbResponse(AdbStatus.TIMEOUT, "Socket timeout");
+        } catch (SecurityException e) {
+            return new AdbResponse(AdbStatus.ERROR, "SecurityException: " + e.getMessage());
         } catch (Exception e) {
             return expired.get() ? new AdbResponse(AdbStatus.TIMEOUT, null) : new AdbResponse(AdbStatus.ERROR, e.getMessage());
         } finally {

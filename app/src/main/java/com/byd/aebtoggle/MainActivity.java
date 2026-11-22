@@ -211,14 +211,26 @@ public class MainActivity extends Activity {
             return;
         }
         updateUIStates();
-        Toast.makeText(this, R.string.toast_granting, Toast.LENGTH_SHORT).show();
+
+        final android.app.ProgressDialog progress = new android.app.ProgressDialog(this);
+        progress.setTitle(getString(R.string.prov_title));
+        progress.setMessage("ADB bağlantısı kuruluyor (127.0.0.1:5555)...");
+        progress.setCancelable(false);
+        progress.show();
+
         new Thread(() -> {
             // S6: one result per capability (same commands as before), logged and shown as a checklist
             final ProvisioningReport report = new ProvisioningReport();
             boolean authorized = false;
             boolean allDelivered = false;
             try {
-                authorized = AdbHelper.grantSelfPermissions(report);
+                authorized = AdbHelper.grantSelfPermissions(report, msg -> {
+                    runOnUiThread(() -> {
+                        if (!isFinishing() && !isDestroyed() && progress.isShowing()) {
+                            progress.setMessage(msg);
+                        }
+                    });
+                });
                 allDelivered = report.allDelivered();
                 StateStore.event("grant permission: " + (authorized ? "car accepted the key" : "not authorized"));
                 for (String line : report.lines()) StateStore.event("grant: " + line);
@@ -228,6 +240,9 @@ public class MainActivity extends Activity {
             final boolean authResult = authorized;
             final boolean allOk = allDelivered;
             runOnUiThread(() -> {
+                if (!isFinishing() && !isDestroyed() && progress.isShowing()) {
+                    try { progress.dismiss(); } catch (Exception ignored) {}
+                }
                 if (authResult) {
                     StateStore.notifyPermissionGranted();
                 }
@@ -269,7 +284,32 @@ public class MainActivity extends Activity {
     /** S6: the checklist of what "Grant Permission" achieved. No layout change: a plain dialog. */
     private void showProvisioningResult(ProvisioningReport report, boolean authorized) {
         StringBuilder text = new StringBuilder();
-        if (!authorized) text.append(getString(R.string.prov_not_authorized)).append("\n\n");
+        if (!authorized) {
+            String code = report.failureCode();
+            String msg = report.failureMessage();
+            if ("PORT_CLOSED".equals(code)) {
+                text.append("⚠️ ADB PORTU (5555) KAPALI!\n\n");
+                text.append("Araçta yerel ADB servisi dinlemiyor.\n");
+                text.append("Lütfen şu adımları uygulayın:\n");
+                text.append("1. Araç Ayarları > Sistem > Yazılım Sürüm Numarasına 7 kez ard arda dokunarak Geliştirici Seçeneklerini açın.\n");
+                text.append("2. Geliştirici Seçeneklerine girin ve 'Kablosuz Hata Ayıklama' (Wireless Debugging) veya 'Ağ Üzerinden ADB' seçeneğini AKTİF hale getirin.\n");
+                text.append("3. Bu ekrana dönüp tekrar 'İZİNLERİ TANIMLA' butonuna dokunun.\n\n");
+            } else if ("TIMEOUT".equals(code)) {
+                text.append("⏳ ZAMAN AŞIMI (60 sn)!\n\n");
+                text.append("Araç ekranında çıkan 'USB hata ayıklamaya izin verilsin mi?' penceresi 60 saniye içinde onaylanmadı.\n");
+                text.append("Lütfen tekrar deneyin ve ekranda beliren onay penceresinde 'Bu bilgisayardan her zaman izin ver' kutusunu işaretleyip 'Tamam / İzin Ver'e dokunun.\n\n");
+            } else if ("AUTH_FAIL".equals(code)) {
+                text.append("❌ ADB YETKİLENDİRMESİ REDDEDİLDİ!\n\n");
+                text.append("Araç ekranındaki ADB izin penceresi reddedildi. Tekrar deneyip onay verin.\n\n");
+            } else {
+                text.append(getString(R.string.prov_not_authorized)).append("\n");
+                if (msg != null && !msg.isEmpty()) {
+                    text.append(msg).append("\n\n");
+                } else {
+                    text.append("\n");
+                }
+            }
+        }
         for (String line : report.lines()) text.append(line).append('\n');
         text.append('\n').append(getString(R.string.prov_overlay_now,
                 getString(Settings.canDrawOverlays(this) ? R.string.prov_granted : R.string.prov_missing)));
@@ -285,7 +325,7 @@ public class MainActivity extends Activity {
         scroll.addView(tv);
 
         AlertDialog.Builder b = new AlertDialog.Builder(this)
-                .setTitle(R.string.prov_title)
+                .setTitle(authorized ? R.string.prov_title : R.string.prov_title_failed)
                 .setView(scroll);
         if (authorized) {
             b.setPositiveButton(R.string.prov_next, (d, w) -> openAutoStartSettings());

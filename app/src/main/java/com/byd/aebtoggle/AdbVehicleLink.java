@@ -78,6 +78,7 @@ final class AdbVehicleLink implements VehicleLink {
 
     /** The two enums have identical names by design. */
     static LinkStatus toLink(AdbHelper.AdbStatus status) {
-        return status == null ? LinkStatus.ERROR : LinkStatus.valueOf(status.name());
+        if (status == null || status == AdbHelper.AdbStatus.PORT_CLOSED) return LinkStatus.ERROR;
+        return LinkStatus.valueOf(status.name());
     }
 }
