@@ -5,8 +5,8 @@
     <string name="app_subtitle">BYD DiLink 3.0 (Android 10) Acil Fren Otomasyonu</string>
 
     <!-- Durum ve Kontrol Metinleri (MainActivity.java) -->
-    <string name="status_aeb_off">AFS KAPALI</string>
-    <string name="status_aeb_on">AFS AÇIK</string>
+    <string name="status_aeb_off">Afs Kapalı</string>
+    <string name="status_aeb_on">Afs Açık</string>
     <string name="status_connecting">Bağlanıyor…</string>
     <string name="sub_last_read" formatted="false">Son okuma: %d sn önce</string>
     <string name="sub_unverified" formatted="false">Doğrulanmamış (%d sn)</string>
@@ -57,8 +57,8 @@
     <string name="notif_text">AFS (Acil Fren Sistemi) izleniyor ve yönetiliyor</string>
     <string name="notif_channel">AFS Servis Bildirimleri</string>
     <string name="hud_unknown">---</string>
-    <string name="hud_off">AFS KAPALI</string>
-    <string name="hud_on">AFS AÇIK</string>
+    <string name="hud_off">Afs Kapalı</string>
+    <string name="hud_on">Afs Açık</string>
     <string name="hud_title">AFS Durumu</string>
 
     <!-- Erişilebilirlik Servisi Bildirimleri -->

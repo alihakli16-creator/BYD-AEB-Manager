@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AFS Durum Baloncuğu (Floating HUD) Görsel Ölçüleri -->
+    <dimen name="afs_bubble_text_size">16sp</dimen>
+    <dimen name="afs_bubble_padding_h">12dp</dimen>
+    <dimen name="afs_bubble_padding_v">8dp</dimen>
+    <dimen name="afs_bubble_corner">24dp</dimen>
+    <dimen name="afs_bubble_stroke_width">1dp</dimen>
+    <dimen name="afs_bubble_min_touch_size">48dp</dimen>
+</resources>
