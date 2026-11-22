@@ -69,12 +69,21 @@ public final class AdbShell {
     private AdbShell() {
     }
 
+    public interface ProgressListener {
+        void onStage(String message);
+    }
+
     public static Result run(Channel ch, String command, Auth auth) {
+        return run(ch, command, auth, PAIRING_TIMEOUT_MS, null);
+    }
+
+    public static Result run(Channel ch, String command, Auth auth, int pairingTimeoutMs, ProgressListener listener) {
         String banner = null;
         try {
             ch.setReadTimeoutMs(HANDSHAKE_TIMEOUT_MS);
             InputStream in = ch.in();
             OutputStream out = ch.out();
+            if (listener != null) listener.onStage("CNXN paketi gönderiliyor (127.0.0.1:5555)...");
             out.write(AdbFrame.encode(AdbFrame.CNXN, VERSION, MAX_DATA, ascii("host::\0")));
 
             int authAttempts = 0;
@@ -97,6 +106,7 @@ public final class AdbShell {
 
                 if (f.command == AdbFrame.CNXN) {
                     banner = new String(f.payload(), UTF8);
+                    if (listener != null) listener.onStage("Cihaz yetkilendirildi! (" + banner + ")");
                     break;
                 }
                 if (f.command != AdbFrame.AUTH) {
@@ -110,11 +120,13 @@ public final class AdbShell {
                     // Attempt 1: sign the token with the key the car already trusts
                     byte[] sig = auth.sign(f.payload());
                     if (sig == null) return new Result(LinkStatus.AUTH_FAIL, "APK signature unauthorized", null);
+                    if (listener != null) listener.onStage("Mevcut anahtarla imza (AUTH 2) gönderildi...");
                     out.write(AdbFrame.encode(AdbFrame.AUTH, 2, 0, sig));
                 } else if (authAttempts == 2) {
                     // Attempt 2: the car does not know the key; offer it ("Allow USB debugging" pop-up)
-                    ch.extendDeadlineMs(PAIRING_TIMEOUT_MS);
-                    ch.setReadTimeoutMs(PAIRING_TIMEOUT_MS);
+                    if (listener != null) listener.onStage("Public key gönderildi. Araç ekranındaki pencerede 'Her zaman izin ver'e dokunun (60 sn)...");
+                    ch.extendDeadlineMs(pairingTimeoutMs);
+                    ch.setReadTimeoutMs(pairingTimeoutMs);
                     out.write(AdbFrame.encode(AdbFrame.AUTH, 3, 0, auth.publicKeyPayload()));
                     sentPublicKey = true;
                 } else {
@@ -122,6 +134,10 @@ public final class AdbShell {
                 }
             }
             if (sentPublicKey) ch.setReadTimeoutMs(HANDSHAKE_TIMEOUT_MS); // the pairing wait is over
+
+            if (command == null || command.isEmpty()) {
+                return new Result(LinkStatus.SUCCESS, "Handshake OK", banner);
+            }
 
             out.write(AdbFrame.encode(AdbFrame.OPEN, 1, 0, ascii("shell:" + command + "\0")));
             AdbFrame opened = AdbFrame.read(in, MAX_FRAME);

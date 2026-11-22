@@ -32,6 +32,8 @@
 
     <!-- İzin ve Yetkilendirme Diyalogları -->
     <string name="prov_title">Sistem İzinleri</string>
+    <string name="prov_title_failed">Sistem İzinleri — Başarısız</string>
+    <string name="prov_waiting_usb">Araç ekranında \'USB hata ayıklamaya izin ver\' penceresi bekleniyor… Lütfen \'Her zaman izin ver\' seçeneğini onaylayın.</string>
     <string name="prov_not_authorized">ADB bağlantısı yetkilendirilmedi</string>
     <string name="prov_overlay_now" formatted="false">Üstte gösterme izni: %s</string>
     <string name="prov_granted">Verildi</string>

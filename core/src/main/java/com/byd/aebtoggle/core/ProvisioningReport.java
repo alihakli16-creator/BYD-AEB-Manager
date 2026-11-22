@@ -33,6 +33,21 @@ public final class ProvisioningReport {
 
     private final Map<Capability, Outcome> outcome = new EnumMap<Capability, Outcome>(Capability.class);
     private final Map<Capability, String> detail = new EnumMap<Capability, String>(Capability.class);
+    private String failureCode = null;
+    private String failureMessage = null;
+
+    public synchronized void recordFailureReason(String code, String message) {
+        this.failureCode = code;
+        this.failureMessage = message;
+    }
+
+    public synchronized String failureCode() {
+        return failureCode;
+    }
+
+    public synchronized String failureMessage() {
+        return failureMessage;
+    }
 
     public ProvisioningReport() {
         for (Capability c : Capability.values()) outcome.put(c, Outcome.NOT_TRIED);

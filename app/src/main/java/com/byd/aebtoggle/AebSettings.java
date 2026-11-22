@@ -24,6 +24,7 @@ final class AebSettings implements SettingsView {
     private static final String KEY_HUD_X = "hud_x";
     private static final String KEY_HUD_Y = "hud_y";
     private static final String KEY_BOOT_CONSUMED_ID = "boot_consumed_id";
+    private static final String KEY_SETUP_COMPLETE = "first_time_setup_complete";
 
     private final Context context;
     private final SharedPreferences prefs;
@@ -88,6 +89,14 @@ final class AebSettings implements SettingsView {
         } else {
             prefs.edit().remove(KEY_BOOT_CONSUMED_ID).apply();
         }
+    }
+
+    boolean isSetupComplete() {
+        return prefs.getBoolean(KEY_SETUP_COMPLETE, false);
+    }
+
+    void setSetupComplete(boolean complete) {
+        prefs.edit().putBoolean(KEY_SETUP_COMPLETE, complete).apply();
     }
 
     void save(boolean startOnBoot, boolean showFloating, int mode) {
