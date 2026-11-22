@@ -22,15 +22,24 @@ android {
         buildConfig true
     }
 
+    signingConfigs {
+        release {
+            storeFile file('afs-release.keystore')
+            storePassword 'afskapat'
+            keyAlias 'afs'
+            keyPassword 'afskapat'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             minifyEnabled false
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 

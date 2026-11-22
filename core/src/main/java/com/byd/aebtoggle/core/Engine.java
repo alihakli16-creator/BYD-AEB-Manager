@@ -174,6 +174,7 @@ public final class Engine {
         lastIgnitionMs = now;
         log.d("IGNITION CYCLE: resetting Once-on-Start state and restarting discovery");
         settings.setBootEnforceConsumed(false);
+        settings.setManualOverrideActive(false);
         steadyOnCount = 0;
         steadyHealthyReads = 0;
         enforceRetries = 0;
@@ -553,13 +554,17 @@ public final class Engine {
 
         if (r.aeb == Aeb.ON) {
             if (mode == Mode.AUTO_DISABLE) {
-                steadyOnCount++;
-                if (steadyOnCount >= STEADY_DEBOUNCE) {
-                    log.d("STEADY: debounced AEB re-enable detected -> RECOVERY_ENFORCE");
-                    enforceRetries = 0;
-                    transitionTo(State.RECOVERY_ENFORCE);
+                if (settings.isManualOverrideActive()) {
+                    log.d("STEADY: manual override active, skipping auto-disable until next ignition");
                 } else {
-                    log.d("STEADY: AEB ON detected (" + steadyOnCount + "/" + STEADY_DEBOUNCE + "), awaiting confirmation");
+                    steadyOnCount++;
+                    if (steadyOnCount >= STEADY_DEBOUNCE) {
+                        log.d("STEADY: debounced AEB re-enable detected -> RECOVERY_ENFORCE");
+                        enforceRetries = 0;
+                        transitionTo(State.RECOVERY_ENFORCE);
+                    } else {
+                        log.d("STEADY: AEB ON detected (" + steadyOnCount + "/" + STEADY_DEBOUNCE + "), awaiting confirmation");
+                    }
                 }
             }
             // mode 0 or 1 (once-on-start already fired at boot): just report, do not enforce

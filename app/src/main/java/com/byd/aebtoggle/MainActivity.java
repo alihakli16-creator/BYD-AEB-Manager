@@ -22,11 +22,14 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.byd.aebtoggle.core.Aeb;
 import com.byd.aebtoggle.core.LinkStatus;
 import com.byd.aebtoggle.core.Mode;
 import com.byd.aebtoggle.core.ProvisioningReport;
 import com.byd.aebtoggle.core.Snapshot;
 import com.byd.aebtoggle.core.StatusView;
+
+import java.util.List;
 
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -59,10 +62,38 @@ public class MainActivity extends Activity {
     /** S3: the in-memory event log with Copy (to the clipboard, by the owner's tap) and Clear. Nothing is written to a file. */
     private void showEventLog() {
         Snapshot s = StateStore.current();
-        String header = getString(R.string.log_header, BuildConfig.VERSION_NAME, s.phase, s.aeb.name(),
-                s.link.name(), Mode.label(settings.mode()));
+        StringBuilder sb = new StringBuilder();
+        sb.append(getString(R.string.log_header, BuildConfig.VERSION_NAME, s.phase, s.aeb.name(),
+                s.link.name(), Mode.label(settings.mode()))).append("\n\n");
+
+        sb.append("=== ADB RSA ANAHTAR DURUMU ===\n");
+        try {
+            sb.append(AdbKeyStore.get().getKeyDetails()).append("\n\n");
+        } catch (Throwable t) {
+            sb.append("Anahtar bilgisi alınamadı: ").append(t.getMessage()).append("\n\n");
+        }
+
+        sb.append("=== DEPOLAMA ALANI DAYANIKLILIK TESTİ ===\n");
+        try {
+            List<AebSettings.StorageLocationReport> reports = settings.runStorageDiagnostics();
+            for (AebSettings.StorageLocationReport r : reports) {
+                sb.append("• ").append(r.name).append(": ").append(r.statusText).append("\n  Konum: ").append(r.path).append("\n");
+            }
+            sb.append("\n");
+        } catch (Throwable t) {
+            sb.append("Depolama tanılama hatası: ").append(t.getMessage()).append("\n\n");
+        }
+
+        sb.append("=== SİSTEM & AÇILIŞ BİLGİSİ ===\n");
+        try {
+            sb.append(settings.getSystemTelemetry()).append("\n");
+        } catch (Throwable ignored) {}
+
+        sb.append("=== CANLI OLAY GÜNLÜĞÜ ===\n");
         String body = StateStore.log().dump(TimeZone.getDefault());
-        final String text = header + "\n\n" + (body.isEmpty() ? getString(R.string.log_empty) : body);
+        sb.append(body.isEmpty() ? getString(R.string.log_empty) : body);
+
+        final String text = sb.toString();
 
         TextView tv = new TextView(this);
         tv.setText(text);
@@ -117,23 +148,28 @@ public class MainActivity extends Activity {
 
         btnDisableNow.setOnClickListener(v -> {
             saveSettings();
-            // S2: the write runs on the engine's thread (never overlapping an automatic write).
-            // The AEB reading is NOT changed here; the engine's next read confirms it (H02 fix).
-            boolean queued = StateStore.requestDisableNow(status -> {
-                if (isFinishing() || isDestroyed()) return;
-                if (status == LinkStatus.SUCCESS) {
-                    Toast.makeText(this, R.string.toast_disable_sent, Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, getString(R.string.toast_disable_failed, status.name()), Toast.LENGTH_SHORT).show();
+            syncService();
+            btnDisableNow.setText("...");
+            btnDisableNow.setEnabled(false);
+            StateStore.requestToggleAeb(this, new StateStore.ToggleCallback() {
+                @Override
+                public void onProgress() {
+                    btnDisableNow.setText("...");
                 }
-                render();
+
+                @Override
+                public void onDone(boolean confirmed, Aeb finalState, String error) {
+                    if (isFinishing() || isDestroyed()) return;
+                    btnDisableNow.setEnabled(true);
+                    if (confirmed) {
+                        Toast.makeText(MainActivity.this, finalState == Aeb.ON ?
+                                R.string.status_aeb_on : R.string.status_aeb_off, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, "Hata: " + (error != null ? error : "Başarısız"), Toast.LENGTH_SHORT).show();
+                    }
+                    render();
+                }
             });
-            if (queued) {
-                Toast.makeText(this, R.string.toast_disabling, Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, R.string.toast_service_not_running, Toast.LENGTH_SHORT).show();
-                syncService();
-            }
         });
 
         View.OnClickListener settingsListener = v -> {
@@ -549,6 +585,11 @@ public class MainActivity extends Activity {
             btnDisableNow.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getColor(R.color.button_disabled))); // Grayed
             btnDisableNow.setAlpha(0.5f);
             btnDisableNow.setEnabled(false);
+        }
+        if (v.kind == StatusView.Kind.OFF) {
+            btnDisableNow.setText("AFS'Yİ ŞİMDİ AÇ (MANUEL)");
+        } else {
+            btnDisableNow.setText("AFS'Yİ ŞİMDİ KAPAT (MANUEL)");
         }
         tvSub.setVisibility(View.VISIBLE);
     }

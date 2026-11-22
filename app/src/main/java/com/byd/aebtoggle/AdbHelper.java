@@ -242,11 +242,18 @@ public class AdbHelper {
         }
     };
 
+    public static volatile long lastConnectionAttemptTimeMs = 0;
+
+    public static boolean isAdbConnectionRecent(long withinMs) {
+        return (android.os.SystemClock.elapsedRealtime() - lastConnectionAttemptTimeMs) <= withinMs;
+    }
+
     public static AdbResponse executeRemoteShellWithResult(String command) {
         return executeRemoteShellWithResult(command, CALL_DEADLINE_MS, AdbShell.PAIRING_TIMEOUT_MS, null);
     }
 
     public static AdbResponse executeRemoteShellWithResult(String command, long deadlineMs, int pairingTimeoutMs, AdbProgressCallback callback) {
+        lastConnectionAttemptTimeMs = android.os.SystemClock.elapsedRealtime();
         final Socket socket = new Socket();
         final AtomicBoolean expired = new AtomicBoolean(false);
         final Runnable expire = () -> {

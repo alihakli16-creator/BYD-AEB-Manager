@@ -14,4 +14,9 @@ public interface SettingsView {
 
     /** Marks Once on Start as consumed for the current boot/ignition session. */
     default void setBootEnforceConsumed(boolean consumed) {}
+
+    /** Whether the user manually enabled AEB, suppressing Auto-Disable until next ignition cycle. */
+    default boolean isManualOverrideActive() { return false; }
+
+    default void setManualOverrideActive(boolean active) {}
 }

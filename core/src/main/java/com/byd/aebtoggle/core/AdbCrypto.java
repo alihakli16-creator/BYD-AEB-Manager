@@ -4,6 +4,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateCrtKey;
@@ -105,6 +106,27 @@ public final class AdbCrypto {
             return true;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    /**
+     * Calculates the colon-separated hex MD5 fingerprint of the ADB public key structure,
+     * matching the exact fingerprint displayed by Android's UsbDebuggingActivity dialog.
+     */
+    public static String getFingerprintMd5(RSAPublicKey publicKey) {
+        if (publicKey == null) return "UNKNOWN";
+        try {
+            byte[] struct = AdbPublicKey.encodeStruct(publicKey.getModulus(), publicKey.getPublicExponent());
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] digest = md.digest(struct);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < digest.length; i++) {
+                sb.append(String.format("%02X", digest[i]));
+                if (i != digest.length - 1) sb.append(":");
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return "ERROR: " + e.getMessage();
         }
     }
 }

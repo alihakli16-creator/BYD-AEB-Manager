@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.byd.aebtoggle.core.StatusView;
 
@@ -73,10 +74,13 @@ final class HudController {
         }
         StateStore.event("HUD shown");
 
-        // Draggable, position remembered
+        // Draggable, position remembered, single-tap toggles AFS
         floatingView.setOnTouchListener(new View.OnTouchListener() {
             private int initialX, initialY;
             private float initialTouchX, initialTouchY;
+            private long touchDownTime;
+            private boolean isDrag = false;
+            private final int touchSlop = 15;
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -86,18 +90,36 @@ final class HudController {
                         initialY = params.y;
                         initialTouchX = event.getRawX();
                         initialTouchY = event.getRawY();
+                        touchDownTime = SystemClock.elapsedRealtime();
+                        isDrag = false;
+                        StateStore.event("HUD: onTouch ACTION_DOWN");
                         return true;
+
                     case MotionEvent.ACTION_MOVE:
-                        params.x = initialX + (int) (event.getRawX() - initialTouchX);
-                        params.y = initialY + (int) (event.getRawY() - initialTouchY);
-                        if (isViewAdded) {
-                            try {
-                                windowManager.updateViewLayout(floatingView, params);
-                            } catch (Exception ignored) {}
+                        float dx = event.getRawX() - initialTouchX;
+                        float dy = event.getRawY() - initialTouchY;
+                        if (!isDrag && Math.hypot(dx, dy) > touchSlop) {
+                            isDrag = true;
+                        }
+                        if (isDrag) {
+                            params.x = initialX + (int) dx;
+                            params.y = initialY + (int) dy;
+                            if (isViewAdded) {
+                                try {
+                                    windowManager.updateViewLayout(floatingView, params);
+                                } catch (Exception ignored) {}
+                            }
                         }
                         return true;
+
                     case MotionEvent.ACTION_UP:
-                        settings.saveHudPosition(params.x, params.y);
+                        long duration = SystemClock.elapsedRealtime() - touchDownTime;
+                        StateStore.event("HUD: onTouch ACTION_UP (drag=" + isDrag + ", duration=" + duration + "ms)");
+                        if (!isDrag && duration < 500) {
+                            onBubbleTapped();
+                        } else if (isDrag) {
+                            settings.saveHudPosition(params.x, params.y);
+                        }
                         return true;
                 }
                 return false;
@@ -107,6 +129,38 @@ final class HudController {
         lastKind = null; // first refresh always renders
         handler.removeCallbacks(refresh);
         handler.post(refresh);
+    }
+
+    private void onBubbleTapped() {
+        StateStore.event("HUD: baloncuk dokunuldu, AFS aç/kapa tetikleniyor");
+        StateStore.requestToggleAeb(context, new StateStore.ToggleCallback() {
+            @Override
+            public void onProgress() {
+                if (floatingView != null && isViewAdded) {
+                    TextView text = floatingView.findViewById(R.id.floating_text);
+                    if (text != null) {
+                        text.setText("...");
+                        text.setTextColor(context.getColor(R.color.hud_neutral));
+                    }
+                }
+            }
+
+            @Override
+            public void onDone(boolean confirmed, com.byd.aebtoggle.core.Aeb finalState, String error) {
+                if (confirmed) {
+                    Toast.makeText(context, finalState == com.byd.aebtoggle.core.Aeb.ON ?
+                            R.string.status_aeb_on : R.string.status_aeb_off, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Hata: " + (error != null ? error : "Doğrulanamadı"), Toast.LENGTH_SHORT).show();
+                }
+                if (isViewAdded) {
+                    StatusView v = StatusView.of(StateStore.current(), SystemClock.elapsedRealtime());
+                    lastKind = v.kind;
+                    lastAttention = v.needsAttention();
+                    render(v);
+                }
+            }
+        });
     }
 
     void hide() {

@@ -60,5 +60,9 @@ final class AdbCryptoTest {
         T.throwsA("null publicKey to authPayload", IllegalArgumentException.class, () -> AdbCrypto.authPayload(null, "test"));
         T.throwsA("null privateKey to sign", IllegalArgumentException.class, () -> AdbCrypto.signToken(null, token));
         T.throwsA("null token to sign", IllegalArgumentException.class, () -> AdbCrypto.signToken(parsedPriv, null));
+
+        T.section("AdbCrypto: fingerprint MD5");
+        String fp = AdbCrypto.getFingerprintMd5(derivedPub);
+        T.isTrue("fingerprint matches XX:XX pattern", fp.matches("([0-9A-F]{2}:){15}[0-9A-F]{2}"));
     }
 }
